@@ -18,7 +18,10 @@
             <p class="eyebrow">Freelancer</p>
             <h1>接单记录</h1>
           </div>
-          <button id="exportCsvBtn" class="icon-button" type="button" aria-label="导出 CSV">导出</button>
+          <div class="top-actions">
+            <button id="exportCsvBtn" class="icon-button" type="button" aria-label="导出 CSV">CSV</button>
+            <button id="backupBtn" class="icon-button" type="button" aria-label="备份和恢复">备份</button>
+          </div>
         </header>
 
         <nav class="segments" aria-label="订单筛选">
@@ -33,6 +36,18 @@
             <option value="all">全部月份</option>
           </select>
         </label>
+
+        <section id="backupPanel" class="backup-panel" hidden>
+          <div>
+            <strong>备份 / 恢复</strong>
+            <p>导出完整数据，或从 JSON 备份合并恢复。</p>
+          </div>
+          <div class="backup-actions">
+            <button id="exportBackupBtn" class="secondary-button" type="button">导出备份</button>
+            <button id="importBackupBtn" class="secondary-button" type="button">导入备份</button>
+          </div>
+        </section>
+        <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
 
         <section id="summary" class="summary" aria-live="polite"></section>
         <main id="orderList" class="order-list"></main>
@@ -56,8 +71,8 @@
           </label>
 
           <label class="field">
-            <span>项目</span>
-            <input id="project" name="project" type="text" placeholder="例如：品牌设计" />
+            <span>项目 *</span>
+            <input id="project" name="project" type="text" placeholder="例如：品牌设计" required />
           </label>
 
           <label class="field">
@@ -65,20 +80,20 @@
             <input id="client" name="client" type="text" placeholder="例如：小林 / XX 公司" />
           </label>
 
-          <label class="field">
+          <label class="field description-field">
             <span>项目说明</span>
-            <textarea id="description" name="description" rows="3" placeholder="例如：某品牌七夕KV"></textarea>
+            <textarea id="description" name="description" rows="2" placeholder="例如：某品牌七夕KV"></textarea>
           </label>
 
           <div class="two-columns">
             <label class="field">
-              <span>数量 *</span>
-              <input id="quantity" name="quantity" type="number" inputmode="decimal" min="0.01" step="0.01" required />
+              <span>数量</span>
+              <input id="quantity" name="quantity" type="number" inputmode="decimal" min="0.01" step="0.01" />
             </label>
 
             <label class="field">
-              <span>单价 *</span>
-              <input id="unitPrice" name="unitPrice" type="number" inputmode="decimal" min="0.01" step="0.01" required />
+              <span>单价</span>
+              <input id="unitPrice" name="unitPrice" type="number" inputmode="decimal" min="0.01" step="0.01" />
             </label>
           </div>
 
@@ -88,8 +103,8 @@
           </div>
 
           <label class="field">
-            <span>交付日期 *</span>
-            <input id="deliveryDate" name="deliveryDate" type="date" required />
+            <span>交付日期</span>
+            <input id="deliveryDate" name="deliveryDate" type="date" />
           </label>
 
           <fieldset class="status-field">

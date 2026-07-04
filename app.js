@@ -15,6 +15,11 @@ const els = {
   monthFilter: document.querySelector("#monthFilter"),
   addOrderBtn: document.querySelector("#addOrderBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
+  backupBtn: document.querySelector("#backupBtn"),
+  backupPanel: document.querySelector("#backupPanel"),
+  exportBackupBtn: document.querySelector("#exportBackupBtn"),
+  importBackupBtn: document.querySelector("#importBackupBtn"),
+  backupFileInput: document.querySelector("#backupFileInput"),
   segments: document.querySelectorAll(".segment"),
   backBtn: document.querySelector("#backBtn"),
   deleteBtn: document.querySelector("#deleteBtn"),
@@ -200,7 +205,7 @@ function renderOrders() {
     button.classList.toggle("is-active", button.dataset.filter === state.filter);
   });
 
-  const orders = filteredOrders().sort((a, b) => b.deliveryDate.localeCompare(a.deliveryDate));
+  const orders = filteredOrders().sort((a, b) => sortDate(b).localeCompare(sortDate(a)));
 
   if (!orders.length) {
     els.orderList.innerHTML = `<div class="empty-state">这里暂时没有订单。<br />点下面的“新增订单”记录一笔。</div>`;
@@ -236,6 +241,10 @@ function orderCard(order) {
   `;
 }
 
+function sortDate(order) {
+  return order.deliveryDate || order.orderDate || "";
+}
+
 function escapeHtml(value) {
   return String(value || "")
     .replaceAll("&", "&amp;")
@@ -265,9 +274,9 @@ function showForm(order = null) {
     project: "",
     client: "",
     description: "",
-    quantity: 1,
+    quantity: "",
     unitPrice: "",
-    deliveryDate: today(),
+    deliveryDate: "",
     paymentStatus: "unpaid",
     paymentDate: "",
   };
@@ -296,8 +305,8 @@ function collectForm() {
     project: els.inputs.project.value.trim(),
     client: els.inputs.client.value.trim(),
     description: els.inputs.description.value.trim(),
-    quantity: Number(els.inputs.quantity.value),
-    unitPrice: Number(els.inputs.unitPrice.value),
+    quantity: optionalNumber(els.inputs.quantity.value),
+    unitPrice: optionalNumber(els.inputs.unitPrice.value),
     deliveryDate: els.inputs.deliveryDate.value,
     paymentStatus: status,
     paymentDate: status === "paid" ? els.inputs.paymentDate.value : "",
@@ -307,14 +316,17 @@ function collectForm() {
 function validateOrder(order) {
   const missing = [];
   if (!order.orderDate) missing.push("接单日期");
-  if (!order.deliveryDate) missing.push("交付日期");
-  if (!order.quantity) missing.push("数量");
-  if (!order.unitPrice) missing.push("单价");
+  if (!order.project) missing.push("项目");
 
   if (missing.length) return `请填写：${missing.join("、")}`;
-  if (order.quantity <= 0) return "数量必须大于 0";
-  if (order.unitPrice <= 0) return "单价必须大于 0";
+  if (order.quantity !== "" && order.quantity <= 0) return "数量如果填写，必须大于 0";
+  if (order.unitPrice !== "" && order.unitPrice <= 0) return "单价如果填写，必须大于 0";
   return "";
+}
+
+function optionalNumber(value) {
+  if (value === "") return "";
+  return Number(value);
 }
 
 function showFormMessage(message) {
@@ -415,10 +427,84 @@ function exportCsv() {
 
   const csv = [headers, ...body].map((row) => row.map(csvCell).join(",")).join("\n");
   const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" });
+  downloadBlob(blob, `接单记录-${state.filter}-${state.month}-${today()}.csv`);
+}
+
+function exportBackup() {
+  const backup = {
+    app: "freelancer-order-records",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    orders: state.orders,
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+  downloadBlob(blob, `接单记录备份-${today()}.json`);
+}
+
+function importBackupFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    try {
+      const parsed = JSON.parse(String(reader.result || ""));
+      const importedOrders = Array.isArray(parsed) ? parsed : parsed.orders;
+      if (!Array.isArray(importedOrders)) {
+        window.alert("这个文件不像是接单记录备份，请选择 JSON 备份文件。");
+        return;
+      }
+
+      const normalized = importedOrders.map(normalizeImportedOrder).filter(Boolean);
+      if (!normalized.length) {
+        window.alert("没有找到可以导入的订单。");
+        return;
+      }
+
+      const byId = new Map(state.orders.map((order) => [order.id, order]));
+      normalized.forEach((order) => {
+        byId.set(order.id, { ...byId.get(order.id), ...order });
+      });
+      state.orders = Array.from(byId.values());
+      saveOrders();
+      renderOrders();
+      window.alert(`已导入 ${normalized.length} 笔订单，并和现有数据合并。`);
+    } catch (error) {
+      window.alert("导入失败，请确认文件是有效的 JSON 备份。");
+    } finally {
+      els.backupFileInput.value = "";
+    }
+  });
+  reader.readAsText(file);
+}
+
+function normalizeImportedOrder(order) {
+  if (!order || typeof order !== "object") return null;
+  const normalized = {
+    id: String(order.id || makeId()),
+    orderDate: String(order.orderDate || ""),
+    project: String(order.project || "").trim() || "未命名项目",
+    client: String(order.client || "").trim(),
+    description: String(order.description || "").trim(),
+    quantity: order.quantity === "" || order.quantity == null ? "" : Number(order.quantity),
+    unitPrice: order.unitPrice === "" || order.unitPrice == null ? "" : Number(order.unitPrice),
+    deliveryDate: String(order.deliveryDate || ""),
+    paymentStatus: order.paymentStatus === "paid" ? "paid" : "unpaid",
+    paymentDate: String(order.paymentDate || ""),
+  };
+  if (!normalized.orderDate) return null;
+  if (Number.isNaN(normalized.quantity)) normalized.quantity = "";
+  if (Number.isNaN(normalized.unitPrice)) normalized.unitPrice = "";
+  if (normalized.paymentStatus === "unpaid") normalized.paymentDate = "";
+  return normalized;
+}
+
+function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `接单记录-${state.filter}-${state.month}-${today()}.csv`;
+  link.download = filename;
   document.body.append(link);
   link.click();
   link.remove();
@@ -433,6 +519,12 @@ function csvCell(value) {
 function bindEvents() {
   els.addOrderBtn.addEventListener("click", () => showForm());
   els.exportCsvBtn.addEventListener("click", exportCsv);
+  els.backupBtn.addEventListener("click", () => {
+    els.backupPanel.hidden = !els.backupPanel.hidden;
+  });
+  els.exportBackupBtn.addEventListener("click", exportBackup);
+  els.importBackupBtn.addEventListener("click", () => els.backupFileInput.click());
+  els.backupFileInput.addEventListener("change", importBackupFile);
   els.monthFilter.addEventListener("change", () => {
     state.month = els.monthFilter.value;
     renderOrders();

@@ -44,7 +44,7 @@ button {
 
 .view {
   min-height: 100vh;
-  padding: max(18px, env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+  padding: max(14px, env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom));
 }
 
 .topbar,
@@ -53,7 +53,13 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .eyebrow {
@@ -67,7 +73,7 @@ button {
 h1,
 h2 {
   margin: 0;
-  font-size: 28px;
+  font-size: 26px;
   line-height: 1.12;
   letter-spacing: 0;
 }
@@ -78,8 +84,8 @@ h2 {
 
 .icon-button,
 .text-button {
-  min-height: 40px;
-  padding: 0 13px;
+  min-height: 38px;
+  padding: 0 12px;
   border-radius: 999px;
   background: var(--surface);
   color: var(--text);
@@ -102,7 +108,7 @@ h2 {
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   padding: 4px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border-radius: 12px;
   background: #e9e8e4;
 }
@@ -123,41 +129,89 @@ h2 {
 }
 
 .month-filter {
-  display: grid;
-  gap: 7px;
-  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 
 .month-filter span {
+  flex: 0 0 auto;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
 }
 
 .month-filter select {
+  min-width: 0;
   width: 100%;
-  min-height: 44px;
-  padding: 0 38px 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
+  min-height: 32px;
+  padding: 0 28px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 850;
   outline: none;
 }
 
 .month-filter select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  box-shadow: none;
+}
+
+.backup-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 13px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.backup-panel[hidden] {
+  display: none;
+}
+
+.backup-panel strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 15px;
+}
+
+.backup-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.backup-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.secondary-button {
+  min-height: 40px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 850;
 }
 
 .summary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .summary.all {
@@ -282,7 +336,7 @@ h2 {
 
 .floating-action,
 .primary-button {
-  min-height: 54px;
+  min-height: 52px;
   border-radius: 14px;
   background: var(--surface-strong);
   color: #ffffff;
@@ -300,7 +354,7 @@ h2 {
 
 .order-form {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .form-message {
@@ -314,7 +368,13 @@ h2 {
 
 .field {
   display: grid;
-  gap: 7px;
+  gap: 5px;
+}
+
+.order-form > .field:not(.description-field) {
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
 }
 
 .field span,
@@ -336,14 +396,16 @@ h2 {
 }
 
 .field input {
-  min-height: 48px;
-  padding: 0 12px;
+  min-height: 44px;
+  padding: 0 11px;
+  line-height: 44px;
 }
 
 .field textarea {
   resize: vertical;
-  padding: 12px;
-  line-height: 1.45;
+  min-height: 68px;
+  padding: 10px 11px;
+  line-height: 1.35;
 }
 
 .field input:focus,
@@ -355,14 +417,14 @@ h2 {
 .two-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 .total-preview {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px;
+  padding: 11px 12px;
   border-radius: 8px;
   background: var(--accent-soft);
   color: var(--accent);
@@ -374,7 +436,7 @@ h2 {
 }
 
 .total-preview strong {
-  font-size: 23px;
+  font-size: 21px;
 }
 
 .status-field {
@@ -388,7 +450,7 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .status-toggle label {
@@ -402,7 +464,7 @@ h2 {
 
 .status-toggle span {
   display: grid;
-  min-height: 46px;
+  min-height: 42px;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 8px;
