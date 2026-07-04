@@ -3,6 +3,7 @@ const STORAGE_KEY = "freelancer-order-records-v1";
 const state = {
   orders: [],
   filter: "unpaid",
+  month: "all",
   editingId: null,
 };
 
@@ -11,6 +12,7 @@ const els = {
   formView: document.querySelector("#formView"),
   orderList: document.querySelector("#orderList"),
   summary: document.querySelector("#summary"),
+  monthFilter: document.querySelector("#monthFilter"),
   addOrderBtn: document.querySelector("#addOrderBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   segments: document.querySelectorAll(".segment"),
@@ -52,6 +54,16 @@ function formatDate(dateString) {
   if (!dateString) return "未填写";
   const [year, month, day] = dateString.split("-");
   return `${month}/${day}`;
+}
+
+function orderMonth(order) {
+  return (order.orderDate || "").slice(0, 7);
+}
+
+function formatMonth(monthValue) {
+  if (monthValue === "all") return "全部月份";
+  const [year, month] = monthValue.split("-");
+  return `${year}年${Number(month)}月`;
 }
 
 function makeId() {
@@ -118,13 +130,32 @@ function saveOrders() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.orders));
 }
 
+function monthFilteredOrders() {
+  if (state.month === "all") return [...state.orders];
+  return state.orders.filter((order) => orderMonth(order) === state.month);
+}
+
 function filteredOrders() {
-  if (state.filter === "all") return [...state.orders];
-  return state.orders.filter((order) => order.paymentStatus === state.filter);
+  const monthOrders = monthFilteredOrders();
+  if (state.filter === "all") return monthOrders;
+  return monthOrders.filter((order) => order.paymentStatus === state.filter);
+}
+
+function renderMonthOptions() {
+  const months = [...new Set(state.orders.map(orderMonth).filter(Boolean))].sort().reverse();
+  const validMonths = ["all", ...months];
+  if (!validMonths.includes(state.month)) {
+    state.month = "all";
+  }
+
+  els.monthFilter.innerHTML = validMonths
+    .map((month) => `<option value="${month}">${formatMonth(month)}</option>`)
+    .join("");
+  els.monthFilter.value = state.month;
 }
 
 function renderSummary() {
-  const all = state.orders;
+  const all = monthFilteredOrders();
   const unpaid = all.filter((order) => order.paymentStatus === "unpaid");
   const paid = all.filter((order) => order.paymentStatus === "paid");
   const unpaidAmount = unpaid.reduce((sum, order) => sum + orderTotal(order), 0);
@@ -163,6 +194,7 @@ function summaryItem(label, value) {
 }
 
 function renderOrders() {
+  renderMonthOptions();
   renderSummary();
   els.segments.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.filter === state.filter);
@@ -386,7 +418,7 @@ function exportCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `接单记录-${state.filter}-${today()}.csv`;
+  link.download = `接单记录-${state.filter}-${state.month}-${today()}.csv`;
   document.body.append(link);
   link.click();
   link.remove();
@@ -401,6 +433,10 @@ function csvCell(value) {
 function bindEvents() {
   els.addOrderBtn.addEventListener("click", () => showForm());
   els.exportCsvBtn.addEventListener("click", exportCsv);
+  els.monthFilter.addEventListener("change", () => {
+    state.month = els.monthFilter.value;
+    renderOrders();
+  });
   els.backBtn.addEventListener("click", showList);
   els.deleteBtn.addEventListener("click", deleteCurrentOrder);
   els.orderForm.addEventListener("submit", saveForm);
