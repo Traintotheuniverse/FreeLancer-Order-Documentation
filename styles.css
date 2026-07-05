@@ -1,15 +1,15 @@
 :root {
   color-scheme: light;
-  --bg: #f5f5f3;
-  --surface: #ffffff;
-  --surface-strong: #111111;
-  --text: #171717;
-  --muted: #737373;
-  --line: #e5e5e5;
-  --accent: #0f766e;
-  --accent-soft: #e6f4f1;
-  --danger: #c2410c;
-  --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --bg: #fbfbfb;
+  --surface: #fbfbfb;
+  --surface-strong: #756c83;
+  --text: #756c83;
+  --muted: #756c83;
+  --line: rgba(117, 108, 131, 0.18);
+  --accent: #f38181;
+  --accent-soft: #b9e1dc;
+  --danger: #f38181;
+  --shadow: 0 10px 24px rgba(117, 108, 131, 0.1);
 }
 
 * {
@@ -110,7 +110,7 @@ h2 {
   padding: 4px;
   margin-bottom: 12px;
   border-radius: 12px;
-  background: #e9e8e4;
+  background: rgba(185, 225, 220, 0.45);
 }
 
 .segment {
@@ -125,7 +125,7 @@ h2 {
 .segment.is-active {
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.08);
+  box-shadow: 0 2px 8px rgba(117, 108, 131, 0.12);
 }
 
 .month-filter {
@@ -201,8 +201,8 @@ h2 {
 .secondary-button {
   min-height: 40px;
   border-radius: 8px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: rgba(185, 225, 220, 0.65);
+  color: var(--surface-strong);
   font-size: 14px;
   font-weight: 850;
 }
@@ -298,29 +298,30 @@ h2 {
 .status-badge {
   padding: 6px 9px;
   border-radius: 999px;
-  background: #f3f4f6;
+  background: rgba(185, 225, 220, 0.42);
   color: var(--muted);
   font-size: 12px;
   font-weight: 850;
 }
 
 .status-badge.unpaid {
-  background: #fff7ed;
-  color: #9a3412;
+  background: rgba(243, 129, 129, 0.14);
+  color: #f38181;
 }
 
 .status-badge.paid {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: rgba(185, 225, 220, 0.7);
+  color: var(--surface-strong);
 }
 
 .quick-paid {
   width: 100%;
-  min-height: 40px;
+  min-height: 36px;
   margin-top: 12px;
   border-radius: 8px;
-  background: var(--surface-strong);
-  color: #ffffff;
+  background: rgba(185, 225, 220, 0.65);
+  color: var(--surface-strong);
+  font-size: 14px;
   font-weight: 850;
 }
 
@@ -336,20 +337,22 @@ h2 {
 
 .floating-action,
 .primary-button {
-  min-height: 52px;
-  border-radius: 14px;
-  background: var(--surface-strong);
-  color: #ffffff;
-  font-size: 16px;
+  min-height: 46px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fbfbfb;
+  font-size: 15px;
   font-weight: 900;
-  box-shadow: 0 16px 34px rgba(17, 17, 17, 0.2);
+  box-shadow: 0 10px 22px rgba(243, 129, 129, 0.24);
 }
 
 .floating-action {
   position: fixed;
-  right: max(16px, calc((100vw - 520px) / 2 + 16px));
+  right: max(18px, calc((100vw - 520px) / 2 + 18px));
   bottom: max(18px, env(safe-area-inset-bottom));
-  left: max(16px, calc((100vw - 520px) / 2 + 16px));
+  left: auto;
+  min-width: 124px;
+  padding: 0 18px;
 }
 
 .order-form {
@@ -360,8 +363,8 @@ h2 {
 .form-message {
   padding: 12px;
   border-radius: 8px;
-  background: #fff7ed;
-  color: #9a3412;
+  background: rgba(243, 129, 129, 0.12);
+  color: var(--accent);
   font-size: 14px;
   font-weight: 700;
 }
@@ -379,7 +382,7 @@ h2 {
 
 .field span,
 .status-field legend {
-  color: #404040;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 800;
 }
@@ -411,7 +414,7 @@ h2 {
 .field input:focus,
 .field textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  box-shadow: 0 0 0 3px rgba(243, 129, 129, 0.14);
 }
 
 .two-columns {
@@ -426,8 +429,8 @@ h2 {
   justify-content: space-between;
   padding: 11px 12px;
   border-radius: 8px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: rgba(185, 225, 220, 0.65);
+  color: var(--surface-strong);
 }
 
 .total-preview span {
@@ -474,9 +477,9 @@ h2 {
 }
 
 .status-toggle input:checked + span {
-  border-color: var(--surface-strong);
-  background: var(--surface-strong);
-  color: #ffffff;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fbfbfb;
 }
 
 .save-bar {
@@ -485,16 +488,19 @@ h2 {
   bottom: 0;
   left: max(16px, calc((100vw - 520px) / 2 + 16px));
   padding: 12px 0 max(14px, env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--bg) 78%, rgba(245, 245, 243, 0));
+  background: linear-gradient(to top, var(--bg) 78%, rgba(251, 251, 251, 0));
 }
 
 .primary-button {
   width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  display: block;
 }
 
 @media (min-width: 700px) {
   body {
-    background: #eeeeeb;
+    background: #fbfbfb;
   }
 
   .app-shell {

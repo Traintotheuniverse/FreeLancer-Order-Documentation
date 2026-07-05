@@ -13,6 +13,7 @@ const els = {
   orderList: document.querySelector("#orderList"),
   summary: document.querySelector("#summary"),
   monthFilter: document.querySelector("#monthFilter"),
+  clientOptions: document.querySelector("#clientOptions"),
   addOrderBtn: document.querySelector("#addOrderBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   backupBtn: document.querySelector("#backupBtn"),
@@ -159,6 +160,15 @@ function renderMonthOptions() {
   els.monthFilter.value = state.month;
 }
 
+function renderClientOptions() {
+  const clients = [...new Set(state.orders.map((order) => order.client?.trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "zh-CN"));
+
+  els.clientOptions.innerHTML = clients
+    .map((client) => `<option value="${escapeHtml(client)}"></option>`)
+    .join("");
+}
+
 function renderSummary() {
   const all = monthFilteredOrders();
   const unpaid = all.filter((order) => order.paymentStatus === "unpaid");
@@ -200,6 +210,7 @@ function summaryItem(label, value) {
 
 function renderOrders() {
   renderMonthOptions();
+  renderClientOptions();
   renderSummary();
   els.segments.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.filter === state.filter);
@@ -287,7 +298,7 @@ function showForm(order = null) {
   els.inputs.description.value = data.description || "";
   els.inputs.quantity.value = data.quantity ?? "";
   els.inputs.unitPrice.value = data.unitPrice ?? "";
-  els.inputs.deliveryDate.value = data.deliveryDate || today();
+  els.inputs.deliveryDate.value = data.deliveryDate || "";
   els.inputs.paymentDate.value = data.paymentDate || "";
   document.querySelector(`input[name="paymentStatus"][value="${data.paymentStatus || "unpaid"}"]`).checked = true;
   updateTotalPreview();
