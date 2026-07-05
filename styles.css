@@ -82,6 +82,18 @@ h2 {
   font-size: 19px;
 }
 
+.app-version {
+  display: inline-block;
+  margin: 6px 0 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(185, 225, 220, 0.55);
+  color: var(--surface-strong);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
 .icon-button,
 .text-button {
   min-height: 38px;
