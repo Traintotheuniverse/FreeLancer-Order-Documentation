@@ -468,19 +468,41 @@ function importBackupFile(event) {
       }
 
       const normalized = importedOrders.map(normalizeImportedOrder).filter(Boolean);
+      const skippedCount = importedOrders.length - normalized.length;
       if (!normalized.length) {
         window.alert("没有找到可以导入的订单。");
         return;
       }
 
       const byId = new Map(state.orders.map((order) => [order.id, order]));
+      const seenImportIds = new Set();
+      let addedCount = 0;
+      let updatedCount = 0;
+      let duplicateCount = 0;
+
       normalized.forEach((order) => {
+        const isDuplicateInFile = seenImportIds.has(order.id);
+        const existsAlready = byId.has(order.id);
+        if (isDuplicateInFile) {
+          duplicateCount += 1;
+        } else if (existsAlready) {
+          updatedCount += 1;
+        } else {
+          addedCount += 1;
+        }
+        seenImportIds.add(order.id);
         byId.set(order.id, { ...byId.get(order.id), ...order });
       });
       state.orders = Array.from(byId.values());
+      state.filter = "all";
+      state.month = "all";
       saveOrders();
       renderOrders();
-      window.alert(`已导入 ${normalized.length} 笔订单，并和现有数据合并。`);
+      const duplicateText = duplicateCount ? `，备份内重复 ${duplicateCount} 笔已合并` : "";
+      const skippedText = skippedCount ? `，跳过 ${skippedCount} 笔无效记录` : "";
+      window.alert(
+        `备份中共 ${importedOrders.length} 笔，有效 ${normalized.length} 笔：新增 ${addedCount} 笔，更新 ${updatedCount} 笔${duplicateText}${skippedText}。当前全部订单 ${state.orders.length} 笔。`,
+      );
     } catch (error) {
       window.alert("导入失败，请确认文件是有效的 JSON 备份。");
     } finally {
