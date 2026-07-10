@@ -9,7 +9,7 @@
   --accent: #f38181;
   --accent-soft: #9cdbca;
   --danger: #f38181;
-  --shadow: 0 10px 24px rgba(117, 108, 131, 0.1);
+  --shadow: 0 14px 30px rgba(117, 108, 131, 0.18);
 }
 
 * {
@@ -145,10 +145,11 @@ h2 {
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 11px 14px;
+  border: 1px solid rgba(117, 108, 131, 0.12);
+  border-radius: 18px;
   background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow: 0 8px 18px rgba(117, 108, 131, 0.08);
 }
 
 .month-filter span {
@@ -164,7 +165,7 @@ h2 {
   min-height: 32px;
   padding: 0 28px 0 0;
   border: 0;
-  border-radius: 0;
+  border-radius: 12px;
   background: transparent;
   color: var(--text);
   font: inherit;
@@ -269,7 +270,12 @@ h2 {
 .order-card-top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
+}
+
+.order-card-top > div:first-child {
+  min-width: 0;
 }
 
 .order-title {
@@ -279,32 +285,42 @@ h2 {
   line-height: 1.25;
 }
 
-.order-desc {
+.order-client {
   margin: 5px 0 0;
   color: var(--muted);
   font-size: 14px;
+  font-weight: 750;
   line-height: 1.35;
 }
 
-.order-price {
+.order-amount {
   flex: 0 0 auto;
-  font-size: 18px;
-  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   white-space: nowrap;
 }
 
-.order-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 14px;
+.order-price {
+  font-size: 17px;
+  font-weight: 900;
 }
 
-.meta-text {
-  color: var(--muted);
+.order-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.order-detail {
+  min-width: 0;
+  padding: 2px 0;
+  color: var(--surface-strong);
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 760;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .status-badge {

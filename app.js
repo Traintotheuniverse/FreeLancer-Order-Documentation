@@ -62,6 +62,15 @@ function formatDate(dateString) {
   return `${month}/${day}`;
 }
 
+function formatQuantity(value) {
+  if (value === "" || value == null) return "未填写";
+  const number = Number(value);
+  if (Number.isNaN(number)) return "未填写";
+  return new Intl.NumberFormat("zh-CN", {
+    maximumFractionDigits: 2,
+  }).format(number);
+}
+
 function orderMonth(order) {
   return (order.orderDate || "").slice(0, 7);
 }
@@ -228,7 +237,7 @@ function renderOrders() {
 
 function orderCard(order) {
   const title = order.project || "未命名项目";
-  const desc = order.description || order.client || "没有项目说明";
+  const client = order.client || "未填写客户";
   const statusLabel = order.paymentStatus === "paid" ? "已付款" : "未付款";
   const quickPaid = order.paymentStatus === "unpaid"
     ? `<button class="quick-paid" type="button" data-paid-id="${order.id}">标记已付款</button>`
@@ -239,17 +248,26 @@ function orderCard(order) {
       <div class="order-card-top">
         <div>
           <h3 class="order-title">${escapeHtml(title)}</h3>
-          <p class="order-desc">${escapeHtml(desc)}</p>
+          <p class="order-client">${escapeHtml(client)}</p>
         </div>
-        <div class="order-price">${formatMoney(orderTotal(order))}</div>
+        <div class="order-amount">
+          <span class="status-badge ${order.paymentStatus}">${statusLabel}</span>
+          <strong class="order-price">总价 ${formatMoney(orderTotal(order))}</strong>
+        </div>
       </div>
-      <div class="order-meta">
-        <span class="meta-text">交付 ${formatDate(order.deliveryDate)}</span>
-        <span class="status-badge ${order.paymentStatus}">${statusLabel}</span>
+      <div class="order-details">
+        ${orderDetail("接单", formatDate(order.orderDate))}
+        ${orderDetail("交付", formatDate(order.deliveryDate))}
+        ${orderDetail("数量", formatQuantity(order.quantity))}
+        ${orderDetail("单价", formatMoney(Number(order.unitPrice || 0)))}
       </div>
       ${quickPaid}
     </article>
   `;
+}
+
+function orderDetail(label, value) {
+  return `<span class="order-detail">${label} ${escapeHtml(value)}</span>`;
 }
 
 function sortDate(order) {
