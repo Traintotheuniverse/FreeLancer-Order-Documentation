@@ -15,6 +15,7 @@ const els = {
   monthFilter: document.querySelector("#monthFilter"),
   clientOptions: document.querySelector("#clientOptions"),
   addOrderBtn: document.querySelector("#addOrderBtn"),
+  refreshAppBtn: document.querySelector("#refreshAppBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   backupBtn: document.querySelector("#backupBtn"),
   backupPanel: document.querySelector("#backupPanel"),
@@ -567,8 +568,31 @@ function csvCell(value) {
   return `"${text.replaceAll('"', '""')}"`;
 }
 
+async function refreshApp() {
+  if (els.refreshAppBtn) {
+    els.refreshAppBtn.disabled = true;
+    els.refreshAppBtn.textContent = "更新中";
+  }
+
+  try {
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ("caches" in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+    }
+  } finally {
+    const separator = window.location.href.includes("?") ? "&" : "?";
+    window.location.replace(`${window.location.href}${separator}refresh=${Date.now()}`);
+  }
+}
+
 function bindEvents() {
   els.addOrderBtn.addEventListener("click", () => showForm());
+  els.refreshAppBtn.addEventListener("click", refreshApp);
   els.exportCsvBtn.addEventListener("click", exportCsv);
   els.backupBtn.addEventListener("click", () => {
     els.backupPanel.hidden = !els.backupPanel.hidden;
