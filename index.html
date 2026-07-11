@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-title" content="接单记录" />
     <title>接单记录</title>
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=1.12" />
+    <link rel="stylesheet" href="styles.css?v=1.14" />
   </head>
   <body>
     <div id="app" class="app-shell">
@@ -17,7 +17,7 @@
           <div>
             <p class="eyebrow">Freelancer</p>
             <h1>接单记录</h1>
-            <p class="app-version">v1.12</p>
+            <p class="app-version">v1.14</p>
           </div>
           <div class="top-actions">
             <button id="refreshAppBtn" class="icon-button" type="button" aria-label="更新页面">更新</button>
@@ -32,12 +32,26 @@
           <button class="segment" type="button" data-filter="paid">已付款</button>
         </nav>
 
-        <label class="month-filter">
-          <span>月份</span>
-          <select id="monthFilter" aria-label="按月份筛选">
-            <option value="all">全部月份</option>
-          </select>
-        </label>
+        <section class="filter-panel" aria-label="订单范围筛选">
+          <label class="filter-field">
+            <span>月份</span>
+            <select id="monthFilter" aria-label="按月份筛选">
+              <option value="all">全部月份</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>项目</span>
+            <select id="projectFilter" aria-label="按项目筛选">
+              <option value="all">全部项目</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>客户</span>
+            <select id="clientFilter" aria-label="按客户筛选">
+              <option value="all">全部客户</option>
+            </select>
+          </label>
+        </section>
 
         <section id="backupPanel" class="backup-panel" hidden>
           <div>
@@ -136,6 +150,6 @@
       </section>
     </div>
 
-    <script src="app.js?v=1.12"></script>
+    <script src="app.js?v=1.14"></script>
   </body>
 </html>

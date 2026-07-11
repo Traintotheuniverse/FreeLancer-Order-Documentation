@@ -1,9 +1,9 @@
-const CACHE_NAME = "freelancer-orders-v1.12";
+const CACHE_NAME = "freelancer-orders-v1.14";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=1.12",
-  "./app.js?v=1.12",
+  "./styles.css?v=1.14",
+  "./app.js?v=1.14",
   "./manifest.webmanifest",
   "./icon.svg",
 ];

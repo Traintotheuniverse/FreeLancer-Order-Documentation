@@ -140,42 +140,50 @@ h2 {
   box-shadow: 0 2px 8px rgba(117, 108, 131, 0.12);
 }
 
-.month-filter {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.filter-panel {
+  display: grid;
+  gap: 8px;
   margin-bottom: 12px;
-  padding: 11px 14px;
+  padding: 10px;
   border: 1px solid rgba(117, 108, 131, 0.12);
-  border-radius: 18px;
+  border-radius: 8px;
   background: var(--surface);
   box-shadow: 0 8px 18px rgba(117, 108, 131, 0.08);
 }
 
-.month-filter span {
+.filter-field {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 2px 4px;
+}
+
+.filter-field span {
   flex: 0 0 auto;
   color: var(--muted);
   font-size: 13px;
   font-weight: 800;
 }
 
-.month-filter select {
+.filter-field select {
   min-width: 0;
   width: 100%;
   min-height: 32px;
-  padding: 0 28px 0 0;
+  padding: 0 26px 0 10px;
   border: 0;
-  border-radius: 12px;
-  background: transparent;
+  border-radius: 8px;
+  background: rgba(185, 225, 220, 0.28);
   color: var(--text);
   font: inherit;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 850;
   outline: none;
 }
 
-.month-filter select:focus {
-  box-shadow: none;
+.filter-field select:focus {
+  box-shadow: 0 0 0 3px rgba(243, 129, 129, 0.14);
 }
 
 .backup-panel {
@@ -250,6 +258,7 @@ h2 {
   display: block;
   font-size: 19px;
   line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .order-list {
@@ -258,6 +267,8 @@ h2 {
 }
 
 .order-card {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   padding: 15px;
   border-radius: 8px;
@@ -265,6 +276,23 @@ h2 {
   color: inherit;
   text-align: left;
   box-shadow: var(--shadow);
+}
+
+.order-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  content: "";
+}
+
+.order-card.paid::before {
+  background: #9cdbca;
+}
+
+.order-card.unpaid::before {
+  background: #f38181;
 }
 
 .order-card-top {

@@ -4,6 +4,8 @@ const state = {
   orders: [],
   filter: "unpaid",
   month: "all",
+  project: "all",
+  client: "all",
   editingId: null,
 };
 
@@ -13,6 +15,8 @@ const els = {
   orderList: document.querySelector("#orderList"),
   summary: document.querySelector("#summary"),
   monthFilter: document.querySelector("#monthFilter"),
+  projectFilter: document.querySelector("#projectFilter"),
+  clientFilter: document.querySelector("#clientFilter"),
   clientOptions: document.querySelector("#clientOptions"),
   addOrderBtn: document.querySelector("#addOrderBtn"),
   refreshAppBtn: document.querySelector("#refreshAppBtn"),
@@ -132,6 +136,11 @@ function orderTotal(order) {
   return Number(order.quantity || 0) * Number(order.unitPrice || 0);
 }
 
+function orderQuantity(order) {
+  const quantity = Number(order.quantity || 0);
+  return Number.isNaN(quantity) ? 0 : quantity;
+}
+
 function loadOrders() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
@@ -146,15 +155,19 @@ function saveOrders() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.orders));
 }
 
-function monthFilteredOrders() {
-  if (state.month === "all") return [...state.orders];
-  return state.orders.filter((order) => orderMonth(order) === state.month);
+function scopeFilteredOrders() {
+  return state.orders.filter((order) => {
+    const monthMatches = state.month === "all" || orderMonth(order) === state.month;
+    const projectMatches = state.project === "all" || order.project === state.project;
+    const clientMatches = state.client === "all" || order.client === state.client;
+    return monthMatches && projectMatches && clientMatches;
+  });
 }
 
 function filteredOrders() {
-  const monthOrders = monthFilteredOrders();
-  if (state.filter === "all") return monthOrders;
-  return monthOrders.filter((order) => order.paymentStatus === state.filter);
+  const scopeOrders = scopeFilteredOrders();
+  if (state.filter === "all") return scopeOrders;
+  return scopeOrders.filter((order) => order.paymentStatus === state.filter);
 }
 
 function renderMonthOptions() {
@@ -179,18 +192,59 @@ function renderClientOptions() {
     .join("");
 }
 
+function uniqueOrderValues(field) {
+  return [...new Set(state.orders.map((order) => order[field]?.trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "zh-CN"));
+}
+
+function filterOption(value, label) {
+  return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+}
+
+function renderProjectOptions() {
+  const projects = uniqueOrderValues("project");
+  const validProjects = ["all", ...projects];
+  if (!validProjects.includes(state.project)) {
+    state.project = "all";
+  }
+
+  els.projectFilter.innerHTML = [
+    filterOption("all", "全部项目"),
+    ...projects.map((project) => filterOption(project, project)),
+  ].join("");
+  els.projectFilter.value = state.project;
+}
+
+function renderClientFilterOptions() {
+  const clients = uniqueOrderValues("client");
+  const validClients = ["all", ...clients];
+  if (!validClients.includes(state.client)) {
+    state.client = "all";
+  }
+
+  els.clientFilter.innerHTML = [
+    filterOption("all", "全部客户"),
+    ...clients.map((client) => filterOption(client, client)),
+  ].join("");
+  els.clientFilter.value = state.client;
+}
+
 function renderSummary() {
-  const all = monthFilteredOrders();
+  const all = scopeFilteredOrders();
   const unpaid = all.filter((order) => order.paymentStatus === "unpaid");
   const paid = all.filter((order) => order.paymentStatus === "paid");
   const unpaidAmount = unpaid.reduce((sum, order) => sum + orderTotal(order), 0);
   const paidAmount = paid.reduce((sum, order) => sum + orderTotal(order), 0);
   const totalAmount = all.reduce((sum, order) => sum + orderTotal(order), 0);
+  const totalQuantity = all.reduce((sum, order) => sum + orderQuantity(order), 0);
+  const paidQuantity = paid.reduce((sum, order) => sum + orderQuantity(order), 0);
+  const unpaidQuantity = unpaid.reduce((sum, order) => sum + orderQuantity(order), 0);
 
   if (state.filter === "all") {
     els.summary.className = "summary all";
     els.summary.innerHTML = [
-      summaryItem("总订单数", `${all.length} 单`),
+      summaryItem("订单数", `${all.length} 单`),
+      summaryItem("数量合计", formatQuantity(totalQuantity)),
       summaryItem("总金额", formatMoney(totalAmount)),
       summaryItem("已收金额", formatMoney(paidAmount)),
       summaryItem("未收金额", formatMoney(unpaidAmount)),
@@ -202,6 +256,7 @@ function renderSummary() {
     els.summary.className = "summary";
     els.summary.innerHTML = [
       summaryItem("已付款订单", `${paid.length} 单`),
+      summaryItem("数量合计", formatQuantity(paidQuantity)),
       summaryItem("已收金额", formatMoney(paidAmount)),
     ].join("");
     return;
@@ -210,6 +265,7 @@ function renderSummary() {
   els.summary.className = "summary";
   els.summary.innerHTML = [
     summaryItem("未付款订单", `${unpaid.length} 单`),
+    summaryItem("数量合计", formatQuantity(unpaidQuantity)),
     summaryItem("未收总金额", formatMoney(unpaidAmount)),
   ].join("");
 }
@@ -220,6 +276,8 @@ function summaryItem(label, value) {
 
 function renderOrders() {
   renderMonthOptions();
+  renderProjectOptions();
+  renderClientFilterOptions();
   renderClientOptions();
   renderSummary();
   els.segments.forEach((button) => {
@@ -245,7 +303,7 @@ function orderCard(order) {
     : "";
 
   return `
-    <article class="order-card" data-order-id="${order.id}">
+    <article class="order-card ${order.paymentStatus}" data-order-id="${order.id}">
       <div class="order-card-top">
         <div>
           <h3 class="order-title">${escapeHtml(title)}</h3>
@@ -457,7 +515,7 @@ function exportCsv() {
 
   const csv = [headers, ...body].map((row) => row.map(csvCell).join(",")).join("\n");
   const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" });
-  downloadBlob(blob, `接单记录-${state.filter}-${state.month}-${today()}.csv`);
+  downloadBlob(blob, `接单记录-${state.filter}-${filenamePart(state.month)}-${filenamePart(state.project)}-${filenamePart(state.client)}-${today()}.csv`);
 }
 
 function exportBackup() {
@@ -515,6 +573,8 @@ function importBackupFile(event) {
       state.orders = Array.from(byId.values());
       state.filter = "all";
       state.month = "all";
+      state.project = "all";
+      state.client = "all";
       saveOrders();
       renderOrders();
       const duplicateText = duplicateCount ? `，备份内重复 ${duplicateCount} 笔已合并` : "";
@@ -568,6 +628,10 @@ function csvCell(value) {
   return `"${text.replaceAll('"', '""')}"`;
 }
 
+function filenamePart(value) {
+  return String(value || "all").replace(/[\\/:*?"<>|]/g, "-");
+}
+
 async function refreshApp() {
   if (els.refreshAppBtn) {
     els.refreshAppBtn.disabled = true;
@@ -602,6 +666,14 @@ function bindEvents() {
   els.backupFileInput.addEventListener("change", importBackupFile);
   els.monthFilter.addEventListener("change", () => {
     state.month = els.monthFilter.value;
+    renderOrders();
+  });
+  els.projectFilter.addEventListener("change", () => {
+    state.project = els.projectFilter.value;
+    renderOrders();
+  });
+  els.clientFilter.addEventListener("change", () => {
+    state.client = els.clientFilter.value;
     renderOrders();
   });
   els.backBtn.addEventListener("click", showList);
